@@ -1,0 +1,173 @@
+//---------------Sonic Nexus Stage Setup--------------//
+//----Scripted by Christian Whitehead "The Taxman"----//
+
+#alias 10 : DYING
+#alias 13 : ANI_DYING
+
+// touch shiz
+#alias 16 : DPAD_X
+#alias 160 : DPAD_Y
+#alias 340 : ABUTTON_X
+#alias 176 : ABUTTON_Y
+
+sub ObjectMain
+
+	//Do the Ring Animation here
+	RingAniCount++
+	if RingAniCount==4
+		RingAniCount=0
+		RingFrame++
+		if RingFrame==8
+			RingFrame=0
+		end if
+	end if
+
+	//Increment the Oscillation Value
+	Oscillation++
+	if Oscillation==512
+		Oscillation=0
+	end if
+
+	//Check for Time Over
+	if Stage.TimeEnabled==true
+		if Stage.Minutes==10
+			Stage.Minutes=9
+			Stage.Seconds=59
+			Stage.MilliSeconds=99
+
+			PlaySfx(4,false)
+			Stage.TimeEnabled=false
+			Player.Speed=0
+			Player.YVelocity=-425984
+			Player.State=DYING
+			Player.Animation=ANI_DYING
+			Player.TileCollisions=false
+			Player.ObjectInteraction=false
+			Stage.CameraEnabled=false
+		end if
+	end if
+
+end sub
+
+sub ObjectDraw
+	// Draw D-Pad base
+	DrawSpriteScreenXY(0, DPAD_X, DPAD_Y)
+	
+	// touch shiz
+	if Player.Left==true
+		DrawSpriteScreenXY(7, DPAD_X, DPAD_Y)
+	else
+		DrawSpriteScreenXY(3, DPAD_X, DPAD_Y)
+	end if
+	
+	if Player.Down==true
+		DrawSpriteScreenXY(6, DPAD_X, DPAD_Y)
+	else
+		DrawSpriteScreenXY(2, DPAD_X, DPAD_Y)
+	end if
+	
+	if Player.Right==true
+		DrawSpriteScreenXY(8, DPAD_X, DPAD_Y)
+	else
+		DrawSpriteScreenXY(4, DPAD_X, DPAD_Y)
+	end if
+	
+	if Player.Up==true
+		DrawSpriteScreenXY(5, DPAD_X, DPAD_Y)
+	else
+		DrawSpriteScreenXY(1, DPAD_X, DPAD_Y)
+	end if
+	
+	if Player.JumpHold==true
+		DrawSpriteScreenXY(10, ABUTTON_X, ABUTTON_Y)
+	else
+		DrawSpriteScreenXY(9, ABUTTON_X, ABUTTON_Y)
+	end if
+end sub
+
+sub ObjectPlayerInteraction
+
+	//Check Boundaries
+	TempValue0=Player.CollisionLeft
+	TempValue0<<=16
+	TempValue0+=Player.XPos
+
+	TempValue1=Stage.XBoundary1
+	TempValue1<<=16
+
+	if TempValue0<TempValue1
+		Player.XVelocity=0
+		Player.Speed=0
+		Player.XPos=TempValue1
+		TempValue0=Player.CollisionLeft
+		TempValue0<<=16
+		Player.XPos-=TempValue0
+	end if
+
+end sub
+
+sub ObjectStartup
+
+	//Setup The common Music Tracks that are always used in a Level
+	SetMusicTrack("Nexus/LevelComplete.ogg",1,false)
+	SetMusicTrack("Nexus/Invincibility.ogg",2,false)
+	SetMusicTrack("Nexus/SpeedShoes.ogg",3,false)
+	SetMusicTrack("Nexus/Invincibility.ogg",4,false)
+	SetMusicTrack("Nexus/Boss.ogg",5,false)
+	SetMusicTrack("Nexus/OneUp.ogg",6,false)
+	SetMusicTrack("Nexus/GameOver.ogg",7,false)
+
+	//Enable Pausing Gameplay
+	Stage.PauseEnabled=true
+	Stage.CameraStyle=1
+	
+	//Create an Instance of this object within the Important Entity Slots
+	Object[23].Type=2
+	Object[23].Priority=1
+	Object[23].DrawOrder=6
+
+	//Remove any Instances of this object within the act layout slots
+	ArrayPos0=32
+	while ArrayPos0<1056
+		if Object[ArrayPos0].Type==2
+			ResetObjectEntity(ArrayPos0,0,0,0,0)
+		end if
+		ArrayPos0++
+	loop
+
+	//Did the Player Hit a Star Post?
+	if StarPost>31
+		ArrayPos0=StarPost
+		Player.XPos=Object[ArrayPos0].XPos
+		Player.YPos=Object[ArrayPos0].YPos
+
+		Object[ArrayPos0].State=2
+		
+		//Restore the recorded time
+		Stage.MilliSeconds=RecMilliSeconds
+		Stage.Seconds=RecSeconds
+		Stage.Minutes=RecMinutes
+	end if
+
+	RingExtraLife=99
+
+	// touch shiz
+	LoadSpriteSheet("NexusGlobals/DPad.gif")
+	SpriteFrame(0, 0, 64, 64, 0, 64)
+	SpriteFrame(26, 0, 12, 25, 26, 0)
+	SpriteFrame(26, 38, 12, 26, 26, 38)
+	SpriteFrame(0, 25, 26, 13, 0, 25)
+	SpriteFrame(38, 25, 26, 13, 38, 25)
+	SpriteFrame(26, 0, 12, 25, 116, 64)
+	SpriteFrame(26, 38, 12, 26, 116, 102)
+	SpriteFrame(0, 25, 26, 13, 89, 101)
+	SpriteFrame(38, 25, 26, 13, 89, 115)
+	SpriteFrame(0, 0, 48, 48, 65, 0)
+	SpriteFrame(0, 0, 48, 48, 65, 49)
+
+end sub
+
+sub RSDK
+	LoadSpriteSheet("NexusGlobals/Display.gif")
+	SetEditorIcon(Icon0,SingleIcon,-16,-16,32,32,256,221)
+end sub
