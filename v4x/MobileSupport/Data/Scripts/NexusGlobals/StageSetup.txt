@@ -7,8 +7,8 @@
 // touch shiz
 #alias 16 : DPAD_X
 #alias 160 : DPAD_Y
-#alias 340 : ABUTTON_X
 #alias 176 : ABUTTON_Y
+#alias Object[23].Value0 : AButtonXPos
 
 sub ObjectMain
 
@@ -79,9 +79,9 @@ sub ObjectDraw
 	end if
 	
 	if Player.JumpHold==true
-		DrawSpriteScreenXY(10, ABUTTON_X, ABUTTON_Y)
+		DrawSpriteScreenXY(10, AButtonXPos, ABUTTON_Y)
 	else
-		DrawSpriteScreenXY(9, ABUTTON_X, ABUTTON_Y)
+		DrawSpriteScreenXY(9, AButtonXPos, ABUTTON_Y)
 	end if
 end sub
 
@@ -125,6 +125,8 @@ sub ObjectStartup
 	Object[23].Type=2
 	Object[23].Priority=1
 	Object[23].DrawOrder=6
+	AButtonXPos=Screen.XSize
+	AButtonXPos-=56
 
 	//Remove any Instances of this object within the act layout slots
 	ArrayPos0=32
